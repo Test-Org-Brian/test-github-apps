@@ -84,15 +84,25 @@
                 // Add redirect URL to manifest
                 manifestData.redirect_url = redirectUrl;
 
-                // Redirect to GitHub
-                const params = new URLSearchParams({
-                    state: state
-                });
+                // Create a form and submit it to GitHub
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `https://github.com/organizations/test-org-brian/settings/apps/new?state=${state}`;
 
-                // Store manifest for the redirect
+                // Add manifest as hidden input (state goes in URL, not form)
+                const manifestInput = document.createElement('input');
+                manifestInput.type = 'hidden';
+                manifestInput.name = 'manifest';
+                manifestInput.value = JSON.stringify(manifestData);
+                form.appendChild(manifestInput);
+
+                // Store manifest for the callback
                 localStorage.setItem('pending-manifest', JSON.stringify(manifestData));
 
-                window.location.href = `https://github.com/organizations/test-org-brian/settings/apps/new?${params}`;
+                // Append form to body, submit, then remove
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
 
             } catch (error) {
                 console.error('Failed to create app:', error);
