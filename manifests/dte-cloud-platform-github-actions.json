@@ -21,9 +21,6 @@
   },
   "single_file_name": ".github/pre-commit-install.txt",
   "description": "GitHub App for CI/CD operations within the Cloud Platform",
-  "hook_attributes": {
-    "url": ""
-  },
   "name": "dte-cloud-platform-github-actions",
   "public": false,
   "redirect_url": "",

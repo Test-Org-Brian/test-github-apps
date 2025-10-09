@@ -17,9 +17,6 @@
     "secrets": "write"
   },
   "description": "GitHub App for CI/CD operations within the Cloud Application SOS",
-  "hook_attributes": {
-    "url": ""
-  },
   "name": "dte-cloud-application-sos",
   "public": false,
   "redirect_url": "",
