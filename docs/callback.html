@@ -1,0 +1,61 @@
+<!-- docs/callback.html -->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>App Creation Complete</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
+    <h1 class="text-2xl font-bold text-center mb-4">App Creation Complete!</h1>
+    <div id="status" class="text-center">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
+      <p>Processing your GitHub App...</p>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+
+    if (code && state === localStorage.getItem('app-creation-state')) {
+      const manifestName = localStorage.getItem('manifest-name');
+
+      // Mark app as created
+      const createdApps = JSON.parse(localStorage.getItem('created-apps') || '[]');
+      if (!createdApps.includes(manifestName)) {
+        createdApps.push(manifestName);
+        localStorage.setItem('created-apps', JSON.stringify(createdApps));
+      }
+
+      // Trigger GitHub Action
+      fetch('https://api.github.com/repos/YOUR_ORG/YOUR_REPO/dispatches', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'token YOUR_TOKEN',
+          'Accept': 'application/vnd.github.v3+json'
+        },
+        body: JSON.stringify({
+          event_type: 'complete-app-creation',
+          client_payload: {
+            code: code,
+            manifest_file: localStorage.getItem('manifest-file')
+          }
+        })
+      }).then(() => {
+        document.getElementById('status').innerHTML = `
+                    <div class="text-green-600 mb-4">✅</div>
+                    <p class="text-green-600 font-medium">App "${manifestName}" created successfully!</p>
+                    <button onclick="window.location.href='./'" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        Back to Dashboard
+                    </button>
+                `;
+      });
+    }
+  </script>
+</body>
+
+</html>

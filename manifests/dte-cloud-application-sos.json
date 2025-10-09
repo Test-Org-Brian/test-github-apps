@@ -1,0 +1,28 @@
+{
+  "callback_urls": [],
+  "default_events": [
+    "pull_request",
+    "push"
+  ],
+  "default_permissions": {
+    "actions": "read",
+    "actions_variables": "write",
+    "administration": "read",
+    "checks": "read",
+    "deployments": "write",
+    "environments": "read",
+    "metadata": "read",
+    "packages": "write",
+    "pull_requests": "write",
+    "secrets": "write"
+  },
+  "description": "GitHub App for CI/CD operations within the Cloud Application SOS",
+  "hook_attributes": {},
+  "name": "dte-cloud-application-sos",
+  "public": false,
+  "redirect_url": "",
+  "request_oauth_on_install": false,
+  "setup_on_update": false,
+  "setup_url": "",
+  "url": "https://www.github.com/dteenergy/cloud-platform-isolation-zone-sos"
+}

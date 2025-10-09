@@ -1,0 +1,125 @@
+<!-- docs/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cloud Platform GitHub App Creator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto p-8">
+        <h1 class="text-4xl font-bold text-center mb-8">GitHub App Creator</h1>
+
+        <div id="app-tiles" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Tiles will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        async function loadManifests() {
+          try {
+            const response = await fetch('./manifests.json');
+            const manifestsObj = await response.json(); // Object, not array
+            const createdApps = getCreatedApps();
+
+            const tilesContainer = document.getElementById('app-tiles');
+
+            Object.keys(manifestsObj).forEach(appName => {
+                const manifestData = manifestsObj[appName];
+                const isCreated = createdApps.includes(appName);
+                const tile = createTile(appName, manifestData, isCreated);
+                tilesContainer.appendChild(tile);
+            });
+          } catch (error) {
+            console.error('Failed to load manifests:', error);
+          }
+        }
+
+        function createTile(appName, manifestData, isCreated) {
+            const tile = document.createElement('div');
+            tile.className = `bg-white rounded-lg shadow-md p-6 border-l-4 ${
+                isCreated
+                    ? 'border-green-500 opacity-50 cursor-not-allowed'
+                    : 'border-blue-500 hover:shadow-lg cursor-pointer'
+            }`;
+
+            tile.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-semibold text-gray-800">${appName}</h3>
+                    ${isCreated ?
+                        '<span class="text-green-600 text-sm font-medium">✅ Created</span>' :
+                        '<span class="text-blue-600 text-sm font-medium">🚀 Ready</span>'
+                    }
+                </div>
+                <p class="text-gray-600 mt-2">${manifestData.description || 'GitHub App'}</p>
+                <div class="mt-4 flex items-center justify-between">
+                    <div class="text-sm text-gray-500">
+                        Permissions: ${Object.keys(manifestData.default_permissions || {}).length} configured
+                    </div>
+                    <button
+                        onclick="createApp('${manifestData}')"
+                        class="px-4 py-2 rounded text-sm font-medium ${
+                            isCreated
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-blue-500 text-white hover:bg-blue-600'
+                        }"
+                        ${isCreated ? 'disabled' : ''}
+                    >
+                        ${isCreated ? 'Already Created' : 'Create App'}
+                    </button>
+                </div>
+            `;
+
+            return tile;
+        }
+
+        async function createApp(manifestData) {
+            try {
+                const state = generateState();
+                const redirectUrl = `${window.location.origin}/callback.html`;
+
+                // Store state for callback
+                localStorage.setItem('app-creation-state', state);
+                localStorage.setItem('manifest-name', manifestData.name);
+
+                // Add redirect URL to manifest
+                manifestData.redirect_url = redirectUrl;
+
+                // Redirect to GitHub
+                const params = new URLSearchParams({
+                    state: state
+                });
+
+                // Store manifest for the redirect
+                localStorage.setItem('pending-manifest', JSON.stringify(manifestData));
+
+                window.location.href = `https://github.com/organizations/YOUR_ORG/settings/apps/new?${params}`;
+
+            } catch (error) {
+                console.error('Failed to create app:', error);
+                alert('Failed to load manifest. Please try again.');
+            }
+        }
+
+        function generateState() {
+            return Math.random().toString(36).substring(2, 15) +
+                   Math.random().toString(36).substring(2, 15);
+        }
+
+        function getCreatedApps() {
+            const created = localStorage.getItem('created-apps');
+            return created ? JSON.parse(created) : [];
+        }
+
+        function markAppAsCreated(appName) {
+            const createdApps = getCreatedApps();
+            if (!createdApps.includes(appName)) {
+                createdApps.push(appName);
+                localStorage.setItem('created-apps', JSON.stringify(createdApps));
+            }
+        }
+
+        // Load manifests when page loads
+        document.addEventListener('DOMContentLoaded', loadManifests);
+    </script>
+</body>
+</html>
