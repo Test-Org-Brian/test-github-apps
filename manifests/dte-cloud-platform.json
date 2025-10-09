@@ -18,7 +18,9 @@
     "vulnerability_alerts": "read"
   },
   "description": "GitHub App for repository management through Terraform within the Cloud Platform",
-  "hook_attributes": {},
+  "hook_attributes": {
+    "url": ""
+  },
   "name": "dte-cloud-platform",
   "public": false,
   "redirect_url": "",
