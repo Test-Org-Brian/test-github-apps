@@ -1,9 +1,5 @@
 {
   "callback_urls": [],
-  "default_events": [
-    "pull_request",
-    "push"
-  ],
   "default_permissions": {
     "actions": "read",
     "actions_variables": "write",
