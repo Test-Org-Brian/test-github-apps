@@ -15,26 +15,29 @@
     </div>
 
     <script>
+        // Store manifests globally for access by createApp function
+        let manifestsData = {};
+
         async function loadManifests() {
           try {
             const response = await fetch('./manifests.json');
-            const manifestsObj = await response.json(); // Object, not array
+            manifestData = await response.json();
             const createdApps = getCreatedApps();
 
             const tilesContainer = document.getElementById('app-tiles');
 
-            Object.keys(manifestsObj).forEach(appName => {
-                const manifestData = manifestsObj[appName];
-                const isCreated = createdApps.includes(appName);
-                const tile = createTile(appName, manifestData, isCreated);
-                tilesContainer.appendChild(tile);
+            Object.keys(manifestData).forEach(appName => {
+              const appManifest = manifestData[appName];
+              const isCreated = createdApps.includes(appName);
+              const tile = createTile(appManifest, isCreated);
+              tilesContainer.appendChild(tile);
             });
           } catch (error) {
             console.error('Failed to load manifests:', error);
           }
         }
 
-        function createTile(appName, manifestData, isCreated) {
+        function createTile(appManifest, isCreated) {
             const tile = document.createElement('div');
             tile.className = `bg-white rounded-lg shadow-md p-6 border-l-4 ${
                 isCreated
@@ -44,19 +47,19 @@
 
             tile.innerHTML = `
                 <div class="flex items-center justify-between">
-                    <h3 class="text-xl font-semibold text-gray-800">${appName}</h3>
+                    <h3 class="text-xl font-semibold text-gray-800">${appManifest.name}</h3>
                     ${isCreated ?
                         '<span class="text-green-600 text-sm font-medium">✅ Created</span>' :
                         '<span class="text-blue-600 text-sm font-medium">🚀 Ready</span>'
                     }
                 </div>
-                <p class="text-gray-600 mt-2">${manifestData.description || 'GitHub App'}</p>
+                <p class="text-gray-600 mt-2">${appManifest.description || 'GitHub App'}</p>
                 <div class="mt-4 flex items-center justify-between">
                     <div class="text-sm text-gray-500">
-                        Permissions: ${Object.keys(manifestData.default_permissions || {}).length} configured
+                        Permissions: ${Object.keys(appManifest.default_permissions || {}).length} configured
                     </div>
                     <button
-                        onclick="createApp('${manifestData}')"
+                        onclick="createApp('${appManifest.name}')"
                         class="px-4 py-2 rounded text-sm font-medium ${
                             isCreated
                                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -72,17 +75,23 @@
             return tile;
         }
 
-        async function createApp(manifestData) {
+        async function createApp(appName) {
             try {
+                // Get manifest data from global variable
+                const appManifest = manifestsData[appName];
+                if (!appManifest) {
+                    throw new Error(`Manifest not found for app: ${appName}`);
+                }
+
                 const state = generateState();
                 const redirectUrl = `${window.location.origin}/callback.html`;
 
                 // Store state for callback
                 localStorage.setItem('app-creation-state', state);
-                localStorage.setItem('manifest-name', manifestData.name);
+                localStorage.setItem('manifest-name', appManifest.name);
 
                 // Add redirect URL to manifest
-                manifestData.redirect_url = redirectUrl;
+                appManifest.redirect_url = redirectUrl;
 
                 // Create a form and submit it to GitHub
                 const form = document.createElement('form');
@@ -93,11 +102,11 @@
                 const manifestInput = document.createElement('input');
                 manifestInput.type = 'hidden';
                 manifestInput.name = 'manifest';
-                manifestInput.value = JSON.stringify(manifestData);
+                manifestInput.value = JSON.stringify(appManifest);
                 form.appendChild(manifestInput);
 
                 // Store manifest for the callback
-                localStorage.setItem('pending-manifest', JSON.stringify(manifestData));
+                localStorage.setItem('pending-manifest', JSON.stringify(appManifest));
 
                 // Append form to body, submit, then remove
                 document.body.appendChild(form);
