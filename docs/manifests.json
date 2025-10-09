@@ -58,11 +58,7 @@
       "environments": "write",
       "members": "read",
       "metadata": "read",
-      "repository_security_advisories": "read",
-      "secret_scanning_alerts": "read",
-      "secrets": "write",
-      "security_events": "read",
-      "vulnerability_alerts": "read"
+      "secrets": "write"
     },
     "description": "GitHub App for repository management through Terraform within the Cloud Platform",
     "name": "dte-cloud-platform",
