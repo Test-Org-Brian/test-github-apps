@@ -7,7 +7,7 @@
     "environments": "write",
     "members": "read",
     "metadata": "read",
-    "secrets": "write",
+    "secrets": "write"
   },
   "description": "GitHub App for repository management through Terraform within the Cloud Platform",
   "name": "dte-cloud-platform",
