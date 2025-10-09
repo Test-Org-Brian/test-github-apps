@@ -18,20 +18,20 @@
   </div>
 
   <script>
-    let manifestData = {};
+    let manifestsData = {};
 
     async function loadManifests() {
       try {
         const response = await fetch('./manifests.json');
-        manifestData = await response.json();
+        manifestsData = await response.json();
         const createdApps = getCreatedApps();
 
         const tilesContainer = document.getElementById('app-tiles');
 
-        Object.keys(manifestData).forEach(appName => {
-          const appManifest = manifestData[appName];
+        Object.keys(manifestsData).forEach(appName => {
+          const appManifest = manifestsData[appName];
           const isCreated = createdApps.includes(appName);
-          const tile = createTile(appName, appManifest, isCreated);
+          const tile = createTile(appManifest, isCreated);
           tilesContainer.appendChild(tile);
         });
       } catch (error) {
@@ -39,7 +39,7 @@
       }
     }
 
-    function createTile(appName, manifestData, isCreated) {
+    function createTile(appManifest, isCreated) {
       const tile = document.createElement('div');
       tile.className = `bg-white rounded-lg shadow-md p-6 border-l-4 ${isCreated
           ? 'border-green-500 opacity-50 cursor-not-allowed'
@@ -48,19 +48,19 @@
 
       tile.innerHTML = `
                 <div class="flex items-center justify-between">
-                    <h3 class="text-xl font-semibold text-gray-800">${appName}</h3>
+                    <h3 class="text-xl font-semibold text-gray-800">${appManifest.name}</h3>
                     ${isCreated ?
           '<span class="text-green-600 text-sm font-medium">✅ Created</span>' :
           '<span class="text-blue-600 text-sm font-medium">🚀 Ready</span>'
         }
                 </div>
-                <p class="text-gray-600 mt-2">${manifestData.description || 'GitHub App'}</p>
+                <p class="text-gray-600 mt-2">${appManifest.description || 'GitHub App'}</p>
                 <div class="mt-4 flex items-center justify-between">
                     <div class="text-sm text-gray-500">
-                        Permissions: ${Object.keys(manifestData.default_permissions || {}).length} configured
+                        Permissions: ${Object.keys(appManifest.default_permissions || {}).length} configured
                     </div>
                     <button
-                        onclick="createApp('${manifestData}')"
+                        onclick="createApp('${appManifest}')"
                         class="px-4 py-2 rounded text-sm font-medium ${isCreated
           ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
           : 'bg-blue-500 text-white hover:bg-blue-600'
@@ -76,9 +76,15 @@
     }
 
 
-    async function createApp(manifestData) {
+    async function createApp(appName) {
       try {
+        const appManifest = manifestsData[appName]
+        if (!appManifest) {
+          throw new Error(`Manifest not found for app: ${appName}`);
+        }
+
         const config = window.APP_CONFIG.github;
+
         const state = generateState();
         const redirectUrl = `${window.location.origin}/${config.repo}/callback.html`;
 
