@@ -1,6 +1,6 @@
 window.APP_CONFIG = {
     github: {
-        org: 'test-org-brian',
+        org: 'Test-Org-Brian',
         repo: 'test-github-apps'
     },
     features: {

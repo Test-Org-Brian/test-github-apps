@@ -100,7 +100,7 @@
           const config = window.APP_CONFIG.github;
 
           const state = generateState();
-          const redirectUrl = `${window.location.origin}/${config.repo}/callback.html`;
+          const redirectUrl = `${window.location.origin}/callback.html`;
 
           // Store state for callback
           localStorage.setItem('app-creation-state', state);
@@ -108,6 +108,16 @@
 
           // Add redirect URL to manifest
           appManifest.redirect_url = redirectUrl;
+
+          // Debug: Log the manifest being sent
+          console.log(
+            'Sending manifest:',
+            JSON.stringify(appManifest, null, 2)
+          );
+          console.log(
+            'Form action:',
+            `https://github.com/organizations/${config.org}/settings/apps/new?state=${state}`
+          );
 
           // Create a form and submit it to GitHub
           const form = document.createElement('form');
