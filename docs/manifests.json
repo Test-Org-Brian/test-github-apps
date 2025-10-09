@@ -18,9 +18,6 @@
       "secrets": "write"
     },
     "description": "GitHub App for CI/CD operations within the Cloud Application SOS",
-    "hook_attributes": {
-      "url": ""
-    },
     "name": "dte-cloud-application-sos",
     "public": false,
     "redirect_url": "",
@@ -52,9 +49,6 @@
     },
     "single_file_name": ".github/pre-commit-install.txt",
     "description": "GitHub App for CI/CD operations within the Cloud Platform",
-    "hook_attributes": {
-      "url": ""
-    },
     "name": "dte-cloud-platform-github-actions",
     "public": false,
     "redirect_url": "",
@@ -76,6 +70,7 @@
       "environments": "write",
       "metadata": "read",
       "organization_members": "read",
+      "pull_requests": "read",
       "repository_advisories": "read",
       "secret_scanning_alerts": "read",
       "secrets": "write",
@@ -83,9 +78,6 @@
       "vulnerability_alerts": "read"
     },
     "description": "GitHub App for repository management through Terraform within the Cloud Platform",
-    "hook_attributes": {
-      "url": ""
-    },
     "name": "dte-cloud-platform",
     "public": false,
     "redirect_url": "",
