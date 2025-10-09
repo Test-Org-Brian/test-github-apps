@@ -100,7 +100,7 @@
           const config = window.APP_CONFIG.github;
 
           const state = generateState();
-          const redirectUrl = `${window.location.origin}/callback.html`;
+          const redirectUrl = `${window.location.origin}/${config.repo}/callback.html`;
 
           // Store state for callback
           localStorage.setItem('app-creation-state', state);
