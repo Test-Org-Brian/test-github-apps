@@ -78,8 +78,8 @@
         async function createApp(appName) {
             try {
                 // Get manifest data from global variable
-                const appManifest = manifestsData[appName];
-                if (!appManifest) {
+                const manifest = manifestsData[appName];
+                if (!manifest) {
                     throw new Error(`Manifest not found for app: ${appName}`);
                 }
 
@@ -88,10 +88,13 @@
 
                 // Store state for callback
                 localStorage.setItem('app-creation-state', state);
-                localStorage.setItem('manifest-name', appManifest.name);
+                localStorage.setItem('manifest-name', manifest.name);
 
-                // Add redirect URL to manifest
-                appManifest.redirect_url = redirectUrl;
+                // Create a copy of the manifest and ensure required fields are set
+                const appManifest = {
+                    ...manifest,
+                    redirect_url: redirectUrl,
+                };
 
                 // Create a form and submit it to GitHub
                 const form = document.createElement('form');
