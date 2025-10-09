@@ -21,13 +21,13 @@
         async function loadManifests() {
           try {
             const response = await fetch('./manifests.json');
-            manifestData = await response.json();
+            manifestsData = await response.json(); // Use the global variable
             const createdApps = getCreatedApps();
 
             const tilesContainer = document.getElementById('app-tiles');
 
-            Object.keys(manifestData).forEach(appName => {
-              const appManifest = manifestData[appName];
+            Object.keys(manifestsData).forEach(appName => {
+              const appManifest = manifestsData[appName];
               const isCreated = createdApps.includes(appName);
               const tile = createTile(appManifest, isCreated);
               tilesContainer.appendChild(tile);
