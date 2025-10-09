@@ -1,10 +1,6 @@
 {
   "dte-cloud-application-sos": {
     "callback_urls": [],
-    "default_events": [
-      "pull_request",
-      "push"
-    ],
     "default_permissions": {
       "actions": "read",
       "actions_variables": "write",
@@ -28,10 +24,6 @@
   },
   "dte-cloud-platform-github-actions": {
     "callback_urls": [],
-    "default_events": [
-      "pull_request",
-      "push"
-    ],
     "default_permissions": {
       "actions": "read",
       "actions_variables": "write",
@@ -59,10 +51,6 @@
   },
   "dte-cloud-platform": {
     "callback_urls": [],
-    "default_events": [
-      "pull_request",
-      "push"
-    ],
     "default_permissions": {
       "actions_variables": "write",
       "administration": "write",
@@ -70,7 +58,6 @@
       "environments": "write",
       "metadata": "read",
       "organization_members": "read",
-      "pull_requests": "read",
       "repository_advisories": "read",
       "secret_scanning_alerts": "read",
       "secrets": "write",
