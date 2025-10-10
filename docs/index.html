@@ -116,13 +116,13 @@
           );
           console.log(
             'Form action:',
-            `https://github.com/organizations/${config.org}/settings/apps/new?state=${state}`
+            `https://github.com/settings/apps/new?state=${state}`
           );
 
           // Create a form and submit it to GitHub
           const form = document.createElement('form');
           form.method = 'POST';
-          form.action = `https://github.com/organizations/${config.org}/settings/apps/new?state=${state}`;
+          form.action = `https://github.com/settings/apps/new?state=${state}`; // `https://github.com/organizations/${config.org}/settings/apps/new?state=${state}`;
 
           // Add manifest as hidden input (state goes in URL, not form)
           const manifestInput = document.createElement('input');
