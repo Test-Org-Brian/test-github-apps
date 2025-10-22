@@ -8,6 +8,7 @@
       rel="stylesheet"
     />
     <script src="./config.js"></script>
+    <script src="./github_issue_ops.js"></script>
   </head>
 
   <body class="bg-gray-100 min-h-screen">
@@ -24,12 +25,27 @@
 
     <script>
       let manifestsData = {};
+      let issueOps;
 
       async function loadManifests() {
         try {
           const response = await fetch('./manifests.json');
           manifestsData = await response.json();
-          const createdApps = getCreatedApps();
+
+          if (
+            !issueOps &&
+            window.GitHubIssueOps &&
+            window.APP_CONFIG &&
+            window.APP_CONFIG.github
+          ) {
+            const config = window.APP_CONFIG.github;
+            issueOps = new window.GitHubIssueOps({
+              owner: config.org,
+              repo: config.repo,
+              authToken: config.authToken,
+            });
+          }
+          const createdApps = await getCreatedApps();
 
           const tilesContainer = document.getElementById('app-tiles');
 
@@ -53,39 +69,39 @@
         }`;
 
         tile.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <h3 class="text-xl font-semibold text-gray-800">${
-                      appManifest.name
-                    }</h3>
-                    ${
-                      isCreated
-                        ? '<span class="text-green-600 text-sm font-medium">✅ Created</span>'
-                        : '<span class="text-blue-600 text-sm font-medium">🚀 Ready</span>'
-                    }
-                </div>
-                <p class="text-gray-600 mt-2">${
-                  appManifest.description || 'GitHub App'
-                }</p>
-                <div class="mt-4 flex items-center justify-between">
-                    <div class="text-sm text-gray-500">
-                        Permissions: ${
-                          Object.keys(appManifest.default_permissions || {})
-                            .length
-                        } configured
-                    </div>
-                    <button
-                        onclick="createApp('${appManifest.name}')"
-                        class="px-4 py-2 rounded text-sm font-medium ${
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xl font-semibold text-gray-800">${
+                          appManifest.name
+                        }</h3>
+                        ${
                           isCreated
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            : 'bg-blue-500 text-white hover:bg-blue-600'
-                        }"
-                        ${isCreated ? 'disabled' : ''}
-                    >
-                        ${isCreated ? 'Already Created' : 'Create App'}
-                    </button>
-                </div>
-            `;
+                            ? '<span class="text-green-600 text-sm font-medium">✅ Created</span>'
+                            : '<span class="text-blue-600 text-sm font-medium">🚀 Ready</span>'
+                        }
+                    </div>
+                    <p class="text-gray-600 mt-2">${
+                      appManifest.description || 'GitHub App'
+                    }</p>
+                    <div class="mt-4 flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            Permissions: ${
+                              Object.keys(appManifest.default_permissions || {})
+                                .length
+                            } configured
+                        </div>
+                        <button
+                            onclick="createApp('${appManifest.name}')"
+                            class="px-4 py-2 rounded text-sm font-medium ${
+                              isCreated
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-blue-500 text-white hover:bg-blue-600'
+                            }"
+                            ${isCreated ? 'disabled' : ''}
+                        >
+                            ${isCreated ? 'Already Created' : 'Create App'}
+                        </button>
+                    </div>
+                `;
 
         return tile;
       }
@@ -151,9 +167,31 @@
         );
       }
 
-      function getCreatedApps() {
+      async function getCreatedApps() {
+        // Get locally stored created apps
         const created = localStorage.getItem('created-apps');
-        return created ? JSON.parse(created) : [];
+        let createdApps = created ? JSON.parse(created) : [];
+
+        // Also fetch closed issues from GitHub to mark as created
+        if (issueOps) {
+          try {
+            const issues = await issueOps.listIssues({
+              state: 'closed',
+              labels: ['github-app-automation'],
+            });
+            issues.forEach((issue) => {
+              // Use issue title as app name (or parse from body if needed)
+              if (!createdApps.includes(issue.title)) {
+                createdApps.push(issue.title);
+              }
+            });
+            // Optionally update localStorage
+            localStorage.setItem('created-apps', JSON.stringify(createdApps));
+          } catch (err) {
+            console.error('Failed to fetch closed issues:', err);
+          }
+        }
+        return createdApps;
       }
 
       function markAppAsCreated(appName) {
