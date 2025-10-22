@@ -4,7 +4,7 @@ name: Deploy static content to Pages
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["main"]
+    branches: ['main']
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -18,7 +18,7 @@ permissions:
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: false
 
 jobs:
@@ -31,13 +31,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      # Inject environment variable into config.js
+      - name: Inject config values
+        run: |
+          sed -e "s|__GITHUB_ENTERPRISE__|${{ secrets.GITHUB_ENTERPRISE }}|g" \
+              -e "s|__GITHUB_ORG__|${{ github.repository_owner }}|g" \
+              -e "s|__GITHUB_REPO__|${{ github.repository }}|g" \
+              -e "s|__GITHUB_TOKEN__|${{ secrets.GITHUB_TOKEN }}|g" \
+              docs/config.template.js > docs/config.js
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          path: 'docs'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
