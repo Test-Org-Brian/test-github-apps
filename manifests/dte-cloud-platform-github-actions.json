@@ -5,17 +5,16 @@
     "actions_variables": "write",
     "administration": "write",
     "checks": "read",
+    "contents": "write",
     "deployments": "write",
     "environments": "read",
+    "issues": "write",
     "metadata": "read",
     "packages": "write",
     "pull_requests": "write",
     "secrets": "write",
-    "issues": "write",
-    "contents": "write",
     "single_file": "write"
   },
-  "single_file_name": ".github/pre-commit-install.txt",
   "description": "GitHub App for CI/CD operations within the Cloud Platform",
   "name": "dte-cloud-platform-github-actions",
   "public": false,
@@ -23,5 +22,6 @@
   "request_oauth_on_install": false,
   "setup_on_update": false,
   "setup_url": "",
+  "single_file_name": ".github/pre-commit-install.txt",
   "url": "https://www.github.com/dteenergy/cloud-platform-isolation-zone-sos"
 }

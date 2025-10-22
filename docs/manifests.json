@@ -22,33 +22,6 @@
     "setup_url": "",
     "url": "https://www.github.com/dteenergy/cloud-platform-isolation-zone-sos"
   },
-  "dte-cloud-platform-github-actions": {
-    "callback_urls": [],
-    "default_permissions": {
-      "actions": "read",
-      "actions_variables": "write",
-      "administration": "write",
-      "checks": "read",
-      "deployments": "write",
-      "environments": "read",
-      "metadata": "read",
-      "packages": "write",
-      "pull_requests": "write",
-      "secrets": "write",
-      "issues": "write",
-      "contents": "write",
-      "single_file": "write"
-    },
-    "single_file_name": ".github/pre-commit-install.txt",
-    "description": "GitHub App for CI/CD operations within the Cloud Platform",
-    "name": "dte-cloud-platform-github-actions",
-    "public": false,
-    "redirect_url": "",
-    "request_oauth_on_install": false,
-    "setup_on_update": false,
-    "setup_url": "",
-    "url": "https://www.github.com/dteenergy/cloud-platform-isolation-zone-sos"
-  },
   "dte-cloud-platform": {
     "callback_urls": [],
     "default_permissions": {
@@ -68,5 +41,32 @@
     "setup_on_update": false,
     "setup_url": "",
     "url": "https://www.github.com/dteenergy/cloud-platform-github-apps"
+  },
+  "dte-cloud-platform-github-actions": {
+    "callback_urls": [],
+    "default_permissions": {
+      "actions": "read",
+      "actions_variables": "write",
+      "administration": "write",
+      "checks": "read",
+      "contents": "write",
+      "deployments": "write",
+      "environments": "read",
+      "issues": "write",
+      "metadata": "read",
+      "packages": "write",
+      "pull_requests": "write",
+      "secrets": "write",
+      "single_file": "write"
+    },
+    "description": "GitHub App for CI/CD operations within the Cloud Platform",
+    "name": "dte-cloud-platform-github-actions",
+    "public": false,
+    "redirect_url": "",
+    "request_oauth_on_install": false,
+    "setup_on_update": false,
+    "setup_url": "",
+    "single_file_name": ".github/pre-commit-install.txt",
+    "url": "https://www.github.com/dteenergy/cloud-platform-isolation-zone-sos"
   }
 }

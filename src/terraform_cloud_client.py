@@ -2,7 +2,9 @@
 """
 A simple Terraform Cloud API client to create variables in a workspace.
 """
+
 import requests
+
 
 class TerraformCloudClient:
     def __init__(self, token: str, workspace_id: str):
@@ -11,7 +13,7 @@ class TerraformCloudClient:
         self.base_url = "https://app.terraform.io/api/v2"
         self.headers = {
             "Authorization": f"Bearer {token}",
-            "Content-Type": "application/vnd.api+json"
+            "Content-Type": "application/vnd.api+json",
         }
 
     def get_workspace_vars(self):
@@ -19,7 +21,7 @@ class TerraformCloudClient:
         try:
             response = requests.get(
                 f"{self.base_url}/workspaces/{self.workspace_id}/vars",
-                headers=self.headers
+                headers=self.headers,
             )
             response.raise_for_status()
         except requests.RequestException as e:
@@ -28,7 +30,9 @@ class TerraformCloudClient:
 
         return response.json()
 
-    def create_variable(self, key: str, value: str, description: str = "", sensitive: bool = True):
+    def create_variable(
+        self, key: str, value: str, description: str = "", sensitive: bool = True
+    ):
         """Create a Terraform variable in the workspace if it doesn't exist"""
         current_vars = self.get_workspace_vars()
         for var in current_vars.get("data", []):
@@ -45,8 +49,8 @@ class TerraformCloudClient:
                     "description": description,
                     "category": "terraform",
                     "hcl": False,
-                    "sensitive": sensitive
-                }
+                    "sensitive": sensitive,
+                },
             }
         }
 
@@ -54,7 +58,7 @@ class TerraformCloudClient:
             response = requests.post(
                 f"{self.base_url}/workspaces/{self.workspace_id}/vars",
                 headers=self.headers,
-                json=data
+                json=data,
             )
             response.raise_for_status()
         except requests.RequestException as e:
@@ -65,5 +69,7 @@ class TerraformCloudClient:
             print(f"✅ Created variable: {key}")
             return response.json()
         else:
-            print(f"❌ Failed to create variable {key}: {response.status_code} - {response.text}")
+            print(
+                f"❌ Failed to create variable {key}: {response.status_code} - {response.text}"
+            )
             return {}

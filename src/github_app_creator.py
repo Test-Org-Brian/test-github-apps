@@ -2,12 +2,13 @@
 """
 GitHub App Creation Automation Tool
 """
+
+from typing import Any, Dict
+
 import requests
-import secrets
-import json
-from pathlib import Path
-from typing import Dict, Any
+
 from utils import get_app_name
+
 
 class GitHubAppCreator:
     def __init__(self, enterprise: str, org_name: str, github_token: str):
@@ -57,11 +58,7 @@ class GitHubAppCreator:
         }
 
         try:
-            response = requests.post(
-                install_url,
-                headers=headers,
-                json=payload
-            )
+            response = requests.post(install_url, headers=headers, json=payload)
             response.raise_for_status()
         except requests.RequestException as e:
             print(f"Installations Request failed: {e}")
@@ -70,7 +67,18 @@ class GitHubAppCreator:
         installation_data = response.json()
         return installation_data
 
-    def upload_to_terraform_cloud(self, app_name: str, app_id: str, slug: str, installation_id: str, client_id: str, client_secret: str, webhook_secret: str, pem: str, tfc_client: Any):
+    def upload_to_terraform_cloud(
+        self,
+        app_name: str,
+        app_id: str,
+        slug: str,
+        installation_id: str,
+        client_id: str,
+        client_secret: str,
+        webhook_secret: str,
+        pem: str,
+        tfc_client: Any,
+    ):
         """Upload GitHub App info as variables to Terraform Cloud in the new style"""
         app_name = get_app_name(app_name)
 
@@ -87,7 +95,9 @@ class GitHubAppCreator:
         for key, value in vals_to_upload.items():
             description = f"GitHub App variable {key} for app {app_name}, provisioned through automation in cloud-platform-github-apps"
             try:
-                tfc_client.create_variable(key, value, description=description, sensitive=True)
+                tfc_client.create_variable(
+                    key, value, description=description, sensitive=True
+                )
             except Exception as e:
                 print(f"Error uploading variable {key}: {e}")
                 return {}
