@@ -22,12 +22,15 @@ class GitHubAppCreator:
 
     def complete_app_creation(self, code: str) -> Dict[str, Any]:
         """Complete app creation using code from GitHub redirect"""
-        # Step 2: Use the code from the redirect
-        response = requests.post(
-            f"{self.base_url}/app-manifests/{code}/conversions",
-            headers=self.headers,
-        )
-        response.raise_for_status()
+        try:
+            response = requests.post(
+                f"{self.base_url}/app-manifests/{code}/conversions",
+                headers=self.headers,
+            )
+            response.raise_for_status()
+        except requests.RequestException as e:
+            print(f"App-Manifests Request failed: {e}")
+            return {}
 
         app_data = response.json()
 
@@ -53,12 +56,17 @@ class GitHubAppCreator:
             "repository_selection": "none",
         }
 
-        response = requests.post(
-            install_url,
-            headers=headers,
-            json=payload
-        )
-        response.raise_for_status()
+        try:
+            response = requests.post(
+                install_url,
+                headers=headers,
+                json=payload
+            )
+            response.raise_for_status()
+        except requests.RequestException as e:
+            print(f"Installations Request failed: {e}")
+            return {}
+
         installation_data = response.json()
         return installation_data
 
@@ -78,4 +86,8 @@ class GitHubAppCreator:
 
         for key, value in vals_to_upload.items():
             description = f"GitHub App variable {key} for app {app_name}, provisioned through automation in cloud-platform-github-apps"
-            tfc_client.create_variable(key, value, description=description, sensitive=True)
+            try:
+                tfc_client.create_variable(key, value, description=description, sensitive=True)
+            except Exception as e:
+                print(f"Error uploading variable {key}: {e}")
+                return {}

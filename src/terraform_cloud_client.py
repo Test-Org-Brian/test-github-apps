@@ -16,11 +16,16 @@ class TerraformCloudClient:
 
     def get_workspace_vars(self):
         """Fetch workspace variables"""
-        response = requests.get(
-            f"{self.base_url}/workspaces/{self.workspace_id}/vars",
-            headers=self.headers
-        )
-        response.raise_for_status()
+        try:
+            response = requests.get(
+                f"{self.base_url}/workspaces/{self.workspace_id}/vars",
+                headers=self.headers
+            )
+            response.raise_for_status()
+        except requests.RequestException as e:
+            print(f"Request failed: {e}")
+            return {}
+
         return response.json()
 
     def create_variable(self, key: str, value: str, description: str = "", sensitive: bool = True):
@@ -45,15 +50,20 @@ class TerraformCloudClient:
             }
         }
 
-        response = requests.post(
-            f"{self.base_url}/workspaces/{self.workspace_id}/vars",
-            headers=self.headers,
-            json=data
-        )
+        try:
+            response = requests.post(
+                f"{self.base_url}/workspaces/{self.workspace_id}/vars",
+                headers=self.headers,
+                json=data
+            )
+            response.raise_for_status()
+        except requests.RequestException as e:
+            print(f"❌ Failed to create variable {key}: {e}")
+            return {}
 
         if response.status_code == 201:
             print(f"✅ Created variable: {key}")
             return response.json()
         else:
             print(f"❌ Failed to create variable {key}: {response.status_code} - {response.text}")
-            response.raise_for_status()
+            return {}

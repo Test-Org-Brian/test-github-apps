@@ -11,8 +11,7 @@ from terraform_cloud_client import TerraformCloudClient
 from utils import get_app_name
 
 def main():
-    parser = argparse.ArgumentParser(description="Create GitHub Apps from manifests")
-    parser.add_argument("manifest", help="Path to manifest file")
+    parser = argparse.ArgumentParser(description="Complete Github App creation and upload to Terraform Cloud")
     parser.add_argument("--enterprise", required=True, help="GitHub Enterprise name")
     parser.add_argument("--org", required=True, help="GitHub Organization name")
     parser.add_argument("--token", required=True, help="GitHub token")
@@ -29,20 +28,22 @@ def main():
 
     creator = GitHubAppCreator(args.enterprise, args.org, args.token)
     app_data = creator.complete_app_creation(args.manifest)
-    installation_data = creator.install_app(app_data["client_id"])
+    if not app_data:
+        print("App creation failed. Exiting.")
+        return
 
-    # Upload to Terraform Cloud
-    creator.upload_to_terraform_cloud(
-        app_id=str(app_data["id"]),
-        slug=app_data["slug"],
-        app_name=app_data["name"],
-        client_id=app_data["client_id"],
-        client_secret=app_data["client_secret"],
-        webhook_secret=app_data["webhook_secret"],
-        pem=app_data["pem"],
-        installation_id=str(installation_data["id"]),
-        tfc_client=tfc_client
-    )
+    installation_data = creator.install_app(app_data["client_id"])
+    if not installation_data:
+        print("App installation failed. Exiting.")
+        return
+
+    # Upload to Terraform Cloud using a single dictionary
+    upload_data = {
+        **app_data,
+        "installation_id": str(installation_data["id"]),
+        "tfc_client": tfc_client
+    }
+    creator.upload_to_terraform_cloud(**upload_data)
 
 
 if __name__ == "__main__":
