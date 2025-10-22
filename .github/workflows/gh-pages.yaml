@@ -43,7 +43,7 @@ jobs:
       - name: Inject config values
         run: |
           sed -e "s|__GITHUB_ORG__|${{ github.repository_owner }}|g" \
-              -e "s|__GITHUB_REPO__|${{ github.repository.name }}|g" \
+              -e "s|__GITHUB_REPO__|${{ github.event.repository.name }}|g" \
               -e "s|__GITHUB_TOKEN__|${{ secrets.GITHUB_TOKEN }}|g" \
               docs/config.template.js > docs/config.js
 

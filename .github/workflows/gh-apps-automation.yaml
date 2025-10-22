@@ -38,25 +38,25 @@ jobs:
       #   env:
       #     ISSUE_BODY: ${{ github.event.issue.body }}
 
-      # - name: Run src/github_app_creator.py
+      # - name: Run GitHub App Installation Script
       #   env:
       #     TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
       #     TFC_WORKSPACE_ID: ${{ secrets.TFC_WORKSPACE_ID }}
       #   run: |
-      #     python src/github_app_creator.py \
+      #     python src/main.py \
       #       --enterprise "dte-energy-company" \
-      #       --org "dteenergy" \
+      #       --org "${{ github.repository_owner }}" \
       #       --token "${{ secrets.GITHUB_TOKEN }}" \
       #       --code "${{ steps.parse.outputs.code }}" \
 
-      - name: Close GitHub Issue
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.rest.issues.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              state: "closed"
-            })
+      # - name: Close GitHub Issue upon App Installation
+      #   uses: actions/github-script@v7
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     script: |
+      #       github.rest.issues.update({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         issue_number: context.issue.number,
+      #         state: "closed"
+      #       })
