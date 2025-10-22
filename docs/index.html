@@ -125,16 +125,6 @@
           // Add redirect URL to manifest
           appManifest.redirect_url = redirectUrl;
 
-          // Debug: Log the manifest being sent
-          console.log(
-            'Sending manifest:',
-            JSON.stringify(appManifest, null, 2)
-          );
-          console.log(
-            'Form action:',
-            `https://github.com/settings/apps/new?state=${state}`
-          );
-
           // Create a form and submit it to GitHub
           const form = document.createElement('form');
           form.method = 'POST';

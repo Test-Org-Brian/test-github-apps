@@ -53,4 +53,4 @@ async function listIssues({ state = 'open', labels = [] } = {}) {
 }
 
 // Export for use in other scripts
-window.GitHubIssueOps = { createIssue, listIssues };
+window.GitHubIssueOps = GitHubIssueOps;

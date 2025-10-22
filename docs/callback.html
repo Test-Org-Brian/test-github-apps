@@ -43,7 +43,7 @@
         const manifestName = localStorage.getItem('manifest-name');
         const config = window.APP_CONFIG.github;
 
-        const issueOps = new GitHubIssueOps({
+        const issueOps = new window.GitHubIssueOps({
           owner: config.org,
           repo: config.repo,
           authToken: config.authToken,
