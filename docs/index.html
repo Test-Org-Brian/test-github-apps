@@ -45,14 +45,14 @@
               authToken: config.authToken,
             });
           }
-          const createdApps = await getCreatedApps();
+          const appStatus = await getAppStatus();
 
           const tilesContainer = document.getElementById('app-tiles');
 
           Object.keys(manifestsData).forEach((appName) => {
             const appManifest = manifestsData[appName];
-            const isCreated = createdApps.includes(appName);
-            const tile = createTile(appManifest, isCreated);
+            const status = appStatus[appName] || 'ready';
+            const tile = createTile(appManifest, status);
             tilesContainer.appendChild(tile);
           });
         } catch (error) {
@@ -60,49 +60,57 @@
         }
       }
 
-      function createTile(appManifest, isCreated) {
+      function createTile(appManifest, status) {
         const tile = document.createElement('div');
-        tile.className = `bg-white rounded-lg shadow-md p-6 border-l-4 ${
-          isCreated
-            ? 'border-green-500 opacity-50 cursor-not-allowed'
-            : 'border-blue-500 hover:shadow-lg cursor-pointer'
-        }`;
+        let borderClass = 'border-blue-500 hover:shadow-lg cursor-pointer';
+        let statusLabel =
+          '<span class="text-blue-600 text-sm font-medium">🚀 Ready</span>';
+        let buttonClass = 'bg-blue-500 text-white hover:bg-blue-600';
+        let buttonText = 'Create App';
+        let disabled = '';
 
+        if (status === 'created') {
+          borderClass = 'border-green-500 opacity-50 cursor-not-allowed';
+          statusLabel =
+            '<span class="text-green-600 text-sm font-medium">✅ Created</span>';
+          buttonClass = 'bg-gray-300 text-gray-500 cursor-not-allowed';
+          buttonText = 'Already Created';
+          disabled = 'disabled';
+        } else if (status === 'in-progress') {
+          borderClass = 'border-yellow-500 opacity-80 cursor-not-allowed';
+          statusLabel =
+            '<span class="text-yellow-600 text-sm font-medium">⏳ In Progress</span>';
+          buttonClass = 'bg-yellow-300 text-yellow-700 cursor-not-allowed';
+          buttonText = 'In Progress';
+          disabled = 'disabled';
+        }
+
+        tile.className = `bg-white rounded-lg shadow-md p-6 border-l-4 ${borderClass}`;
         tile.innerHTML = `
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-xl font-semibold text-gray-800">${
-                          appManifest.name
-                        }</h3>
-                        ${
-                          isCreated
-                            ? '<span class="text-green-600 text-sm font-medium">✅ Created</span>'
-                            : '<span class="text-blue-600 text-sm font-medium">🚀 Ready</span>'
-                        }
-                    </div>
-                    <p class="text-gray-600 mt-2">${
-                      appManifest.description || 'GitHub App'
-                    }</p>
-                    <div class="mt-4 flex items-center justify-between">
-                        <div class="text-sm text-gray-500">
-                            Permissions: ${
-                              Object.keys(appManifest.default_permissions || {})
-                                .length
-                            } configured
-                        </div>
-                        <button
-                            onclick="createApp('${appManifest.name}')"
-                            class="px-4 py-2 rounded text-sm font-medium ${
-                              isCreated
-                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                : 'bg-blue-500 text-white hover:bg-blue-600'
-                            }"
-                            ${isCreated ? 'disabled' : ''}
-                        >
-                            ${isCreated ? 'Already Created' : 'Create App'}
-                        </button>
-                    </div>
-                `;
-
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-semibold text-gray-800">${
+              appManifest.name
+            }</h3>
+            ${statusLabel}
+          </div>
+          <p class="text-gray-600 mt-2">${
+            appManifest.description || 'GitHub App'
+          }</p>
+          <div class="mt-4 flex items-center justify-between">
+            <div class="text-sm text-gray-500">
+              Permissions: ${
+                Object.keys(appManifest.default_permissions || {}).length
+              } configured
+            </div>
+            <button
+              onclick="createApp('${appManifest.name}')"
+              class="px-4 py-2 rounded text-sm font-medium ${buttonClass}"
+              ${disabled}
+            >
+              ${buttonText}
+            </button>
+          </div>
+        `;
         return tile;
       }
 
@@ -137,9 +145,6 @@
           manifestInput.value = JSON.stringify(appManifest);
           form.appendChild(manifestInput);
 
-          // Store manifest for the callback
-          localStorage.setItem('pending-manifest', JSON.stringify(appManifest));
-
           // Append form to body, submit, then remove
           document.body.appendChild(form);
           form.submit();
@@ -157,31 +162,36 @@
         );
       }
 
-      async function getCreatedApps() {
-        // Get locally stored created apps
-        const created = localStorage.getItem('created-apps');
-        let createdApps = created ? JSON.parse(created) : [];
-
-        // Also fetch closed issues from GitHub to mark as created
+      async function getAppStatus() {
+        // Returns an object: { [appName]: 'created' | 'in-progress' }
+        const status = {};
         if (issueOps) {
           try {
-            const issues = await issueOps.listIssues({
+            // Get closed issues (created apps)
+            const closedIssues = await issueOps.listIssues({
               state: 'closed',
               labels: ['github-app-automation'],
             });
-            issues.forEach((issue) => {
-              // Use issue title as app name (or parse from body if needed)
-              if (!createdApps.includes(issue.title)) {
-                createdApps.push(issue.title);
+            closedIssues.forEach((issue) => {
+              status[issue.title] = 'created';
+            });
+
+            // Get open issues (in-progress apps)
+            const openIssues = await issueOps.listIssues({
+              state: 'open',
+              labels: ['github-app-automation'],
+            });
+            openIssues.forEach((issue) => {
+              // Only mark as in-progress if not already created
+              if (!status[issue.title]) {
+                status[issue.title] = 'in-progress';
               }
             });
-            // Optionally update localStorage
-            localStorage.setItem('created-apps', JSON.stringify(createdApps));
           } catch (err) {
-            console.error('Failed to fetch closed issues:', err);
+            console.error('Failed to fetch issues:', err);
           }
         }
-        return createdApps;
+        return status;
       }
 
       function markAppAsCreated(appName) {

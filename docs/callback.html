@@ -28,17 +28,6 @@
       const code = urlParams.get('code');
       const state = urlParams.get('state');
 
-      function markAppAsCreated(manifestName) {
-        const createdApps = JSON.parse(
-          localStorage.getItem('created-apps') || '[]'
-        );
-
-        if (!createdApps.includes(manifestName)) {
-          createdApps.push(manifestName);
-          localStorage.setItem('created-apps', JSON.stringify(createdApps));
-        }
-      }
-
       if (code && state === localStorage.getItem('app-creation-state')) {
         const manifestName = localStorage.getItem('manifest-name');
         const config = window.APP_CONFIG.github;
@@ -52,12 +41,10 @@
         issueOps
           .createIssue({
             title: manifestName,
-            body: createIssueBody(code, manifestName),
+            body: issueOps.createIssueBody(code, manifestName),
             labels: ['github-app-automation'],
           })
           .then((issue) => {
-            markAppAsCreated(manifestName);
-
             document.getElementById('status').innerHTML = `
                   <div class="text-green-600 mb-4">✅</div>
                   <p class="text-green-600 font-medium">App "${manifestName}" registered successfully!</p>
