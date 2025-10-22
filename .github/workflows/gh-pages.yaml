@@ -1,10 +1,13 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: GitHub Pages Deployment
 
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ['main']
+    branches:
+      - main
+    paths:
+      - 'docs/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -14,6 +17,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  issues: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
@@ -38,9 +42,8 @@ jobs:
       # Inject environment variable into config.js
       - name: Inject config values
         run: |
-          sed -e "s|__GITHUB_ENTERPRISE__|${{ secrets.GITHUB_ENTERPRISE }}|g" \
-              -e "s|__GITHUB_ORG__|${{ github.repository_owner }}|g" \
-              -e "s|__GITHUB_REPO__|${{ github.repository }}|g" \
+          sed -e "s|__GITHUB_ORG__|${{ github.repository_owner }}|g" \
+              -e "s|__GITHUB_REPO__|${{ github.repository.name }}|g" \
               -e "s|__GITHUB_TOKEN__|${{ secrets.GITHUB_TOKEN }}|g" \
               docs/config.template.js > docs/config.js
 
