@@ -42,7 +42,7 @@
             issueOps = new window.GitHubIssueOps({
               owner: config.org,
               repo: config.repo,
-              authToken: config.authToken,
+              token: config.token,
             });
           }
           const appStatus = await getAppStatus();

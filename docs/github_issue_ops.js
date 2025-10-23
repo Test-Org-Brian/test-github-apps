@@ -1,6 +1,4 @@
 // GitHub Issue Operations for GitHub Pages
-// Requires a GitHub App token (do not expose in production)
-
 class GitHubIssueOps {
   constructor ({ owner, repo, token }) {
     this.owner = owner;
@@ -11,7 +9,6 @@ class GitHubIssueOps {
       Accept: 'application/vnd.github+json',
       Authorization: `Bearer ${token}`,
       'X-GitHub-Api-Version': '2022-11-28',
-      'Content-Type': 'application/json'
     };
   }
 
@@ -51,7 +48,6 @@ class GitHubIssueOps {
     return await response.json();
   }
 }
-
 
 
 // Export for use in other scripts
