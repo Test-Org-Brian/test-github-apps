@@ -27,16 +27,19 @@
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       const state = urlParams.get('state');
+      let issueOps;
 
       if (code && state === localStorage.getItem('app-creation-state')) {
         const manifestName = localStorage.getItem('manifest-name');
         const config = window.APP_CONFIG.github;
 
-        const issueOps = new window.GitHubIssueOps({
-          owner: config.org,
-          repo: config.repo,
-          authToken: config.authToken,
-        });
+        if (!issueOps) {
+          issueOps = new window.GitHubIssueOps({
+            owner: config.org,
+            repo: config.repo,
+            token: config.token,
+          });
+        }
 
         issueOps
           .createIssue({
