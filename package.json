@@ -1,0 +1,27 @@
+{
+  "description": "Linting and formatting for DTE Cloud Platform GitHub Apps Automation",
+  "devDependencies": {
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-html": "^8.1.3",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "prettier": "^3.6.2"
+  },
+  "lint-staged": {
+    "docs/*.{html,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "name": "cloud-platform-github-apps",
+  "scripts": {
+    "format": "prettier --write docs/*.{html,js}",
+    "format:check": "prettier --check docs/*.{html,js}",
+    "lint": "eslint docs --ext .js --fix",
+    "lint:check": "eslint docs --ext .js",
+    "prepare": "husky"
+  },
+  "version": "1.0.0"
+}

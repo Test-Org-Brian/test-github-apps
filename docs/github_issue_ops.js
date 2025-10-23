@@ -1,6 +1,5 @@
-// GitHub Issue Operations for GitHub Pages
 class GitHubIssueOps {
-  constructor ({ owner, repo, token }) {
+  constructor({ owner, repo, token }) {
     this.owner = owner;
     this.repo = repo;
     this.token = token;
@@ -12,7 +11,7 @@ class GitHubIssueOps {
     };
   }
 
-   createIssueBody(code, manifestName) {
+  createIssueBody(code, manifestName) {
     return (
       `### GitHub App Creation Automation\n` +
       '```json\n' +
@@ -26,28 +25,34 @@ class GitHubIssueOps {
     const response = await fetch(this.baseUrl, {
       method: 'POST',
       headers: this.headers,
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `GitHub API error: ${response.status} ${response.statusText}`
+      );
     }
     return await response.json();
   }
 
   async listIssues({ state = 'open', labels = [] } = {}) {
-    const response = await fetch(`${this.baseUrl}?state=${state}&labels=${labels.join(',')}`, {
-      method: 'GET',
-      headers: this.headers
-    });
+    const response = await fetch(
+      `${this.baseUrl}?state=${state}&labels=${labels.join(',')}`,
+      {
+        method: 'GET',
+        headers: this.headers,
+      }
+    );
 
     if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `GitHub API error: ${response.status} ${response.statusText}`
+      );
     }
     return await response.json();
   }
 }
-
 
 // Export for use in other scripts
 window.GitHubIssueOps = GitHubIssueOps;
