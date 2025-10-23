@@ -34,17 +34,16 @@ def main():
         print("App creation failed. Exiting.")
         return
 
-    installation_data = creator.install_app(app_data["client_id"])
-    if not installation_data:
-        print("App installation failed. Exiting.")
-        return
-
     print(
-        f"GitHub App '{app_data['name']}' created and installed successfully."
+        f"GitHub App '{app_data['name']}' created successfully."
         f"\nApplication Slug: {app_data['slug']}"
         f"\nApplication ID: {app_data['id']}"
-        f"\nInstallation ID: {installation_data['id']}"
     )
+
+    # installation_data = creator.install_app(app_data["client_id"])
+    # if not installation_data:
+    #     print("App installation failed. Exiting.")
+    #     return
 
     # # Upload to Terraform Cloud using a single dictionary
     # upload_data = {
