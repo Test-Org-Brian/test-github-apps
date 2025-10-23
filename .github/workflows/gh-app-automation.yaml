@@ -43,9 +43,9 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
 
       - name: Run GitHub App Installation Script
-        # env:
-        #   TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
-        #   TFC_WORKSPACE_ID: ${{ secrets.TFC_WORKSPACE_ID }}
+        env:
+          TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+          TFC_WORKSPACE_ID: ${{ secrets.TFC_WORKSPACE_ID }}
         run: |
           python automation/main.py \
             --enterprise "dte-energy-company" \
