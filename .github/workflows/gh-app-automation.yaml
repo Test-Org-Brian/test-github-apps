@@ -34,9 +34,11 @@ jobs:
         run: |
           # Extract the JSON code block from the issue body
           echo "$ISSUE_BODY" | awk '/```json/{flag=1;next}/```/{flag=0}flag' > codeblock.json
+
           # Parse code and manifest_name from the code block
           CODE=$(jq -r '.code // empty' codeblock.json)
           MANIFEST_NAME=$(jq -r '.manifest_name // empty' codeblock.json)
+
           echo "code=$CODE" >> $GITHUB_OUTPUT
           echo "manifest_name=$MANIFEST_NAME" >> $GITHUB_OUTPUT
         env:
@@ -46,11 +48,12 @@ jobs:
         env:
           TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
           TFC_WORKSPACE_ID: ${{ secrets.TFC_WORKSPACE_ID }}
+          GITHUB_ENTERPRISE: ${{ vars.GITHUB_ENTERPRISE || 'dte-energy-company' }}
         run: |
           python automation/main.py \
-            --enterprise "dte-energy-company" \
+            --enterprise "$GITHUB_ENTERPRISE" \
             --org "${{ github.repository_owner }}" \
-            --token "${{ secrets.GITHUB_TOKEN }}" \
+            --token "${{ secrets.GH_INSTALL_TOKEN }}" \
             --code "${{ steps.parse.outputs.code }}" \
 
       - name: Close GitHub Issue upon App Installation

@@ -4,8 +4,35 @@ GitHub App Creation Automation Tool
 """
 
 import argparse
+import os
 
 from github_app_creator import GitHubAppCreator
+from terraform_cloud_client import TerraformCloudClient
+
+
+def validate_args(args):
+    """Validate required arguments"""
+    errors = []
+
+    if not args.enterprise or not args.enterprise.strip():
+        errors.append("--enterprise is required and cannot be empty")
+
+    if not args.org or not args.org.strip():
+        errors.append("--org is required and cannot be empty")
+
+    if not args.token or not args.token.strip():
+        errors.append("--token is required and cannot be empty")
+
+    if not args.code or not args.code.strip():
+        errors.append("--code is required and cannot be empty")
+
+    if errors:
+        print("❌ Validation errors:")
+        for error in errors:
+            print(f"  - {error}")
+        return False
+
+    return True
 
 
 def main():
@@ -21,41 +48,65 @@ def main():
 
     args = parser.parse_args()
 
-    # # Get Terraform Cloud credentials from environment
-    # tfc_token = os.getenv("TFC_TOKEN")
-    # tfc_workspace_id = os.getenv("TFC_WORKSPACE_ID")
-    # tfc_client = TerraformCloudClient(tfc_token, tfc_workspace_id)
+    # Validate arguments
+    if not validate_args(args):
+        return 1
 
-    # if not all([tfc_token, tfc_workspace_id]):
-    #     raise ValueError(
-    #         "TFC_TOKEN and TFC_WORKSPACE_ID environment variables are required"
-    #     )
+    # Get Terraform Cloud credentials from environment
+    tfc_token = os.getenv("TFC_TOKEN")
+    tfc_workspace_id = os.getenv("TFC_WORKSPACE_ID")
+
+    if not all([tfc_token, tfc_workspace_id]):
+        print(
+            "❌ Error: TFC_TOKEN and TFC_WORKSPACE_ID environment variables are required"
+        )
+        return 1
+
+    try:
+        tfc_client = TerraformCloudClient(tfc_token, tfc_workspace_id)
+    except Exception as e:
+        print(f"❌ Error: Failed to initialize Terraform Cloud client: {e}")
+        return 1
 
     creator = GitHubAppCreator(args.enterprise, args.org, args.token)
     app_data = creator.complete_app_creation(args.code)
     if not app_data:
-        print("App creation failed. Exiting.")
-        return
+        print("❌ App creation failed. Exiting.")
+        return 1
 
+    # Log app creation success
+    # TODO: remove once complete flow is working
     print(
-        f"GitHub App '{app_data['name']}' created successfully."
-        f"\nApplication Slug: {app_data['slug']}"
-        f"\nApplication ID: {app_data['id']}"
+        f"✅ GitHub App '{app_data['name']}' created successfully."
+        f"\n📋 Application Slug: {app_data['slug']}"
+        f"\n🆔 Application ID: {app_data['id']}"
     )
 
-    # installation_data = creator.install_app(app_data["client_id"])
-    # if not installation_data:
-    #     print("App installation failed. Exiting.")
-    #     return
+    installation_data = creator.install_app(app_data["client_id"])
+    if not installation_data:
+        print("❌ App installation failed. Exiting.")
+        return 1
 
-    # # Upload to Terraform Cloud using a single dictionary
-    # upload_data = {
-    #     **app_data,
-    #     "installation_id": str(installation_data["id"]),
-    #     "tfc_client": tfc_client,
-    # }
-    # creator.upload_to_terraform_cloud(**upload_data)
+    # Upload to Terraform Cloud
+    upload_data = {
+        **app_data,
+        "installation_id": str(installation_data["id"]),
+        "tfc_client": tfc_client,
+    }
+    upload_result = creator.upload_to_terraform_cloud(**upload_data)
+
+    # Check upload results
+    if upload_result and upload_result.get("failed"):
+        print(f"⚠️  Warning: Some variables failed to upload: {upload_result['failed']}")
+        return 1
+    elif upload_result and upload_result.get("successful"):
+        print("🎉 All GitHub App variables uploaded successfully!")
+        return 0
+    else:
+        print("❌ Upload to Terraform Cloud failed")
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    exit_code = main()
+    exit(exit_code)

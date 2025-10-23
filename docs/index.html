@@ -1,20 +1,18 @@
 <!doctype html>
 <html>
   <head>
-    <title>Cloud Platform GitHub Apps</title>
+    <title>Cloud Platform GitHub App Creator</title>
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
-    <script src="./github_issue_ops.js"></script>
     <script src="./config.js"></script>
+    <script src="./github_issue_ops.js"></script>
   </head>
 
   <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto p-8">
-      <h1 class="text-4xl font-bold text-center mb-8">
-        Cloud Platform GitHub Apps
-      </h1>
+      <h1 class="text-4xl font-bold text-center mb-8">GitHub App Creator</h1>
 
       <div
         id="app-tiles"
@@ -76,7 +74,7 @@
           statusLabel =
             '<span class="text-green-600 text-sm font-medium">✅ Created</span>';
           buttonClass = 'bg-gray-300 text-gray-500 cursor-not-allowed';
-          buttonText = 'Creation Complete';
+          buttonText = 'Already Created';
           disabled = 'disabled';
         } else if (status === 'in-progress') {
           borderClass = 'border-yellow-500 opacity-80 cursor-not-allowed';

@@ -91,12 +91,41 @@ class GitHubAppCreator:
             f"{app_name}_PEM": pem,
         }
 
+        failed_uploads = []
+        successful_uploads = []
+
         for key, value in vals_to_upload.items():
             description = f"GitHub App variable {key} for app {app_name}, provisioned through automation in cloud-platform-github-apps"
             try:
-                tfc_client.create_variable(
+                result = tfc_client.create_variable(
                     key, value, description=description, sensitive=True
                 )
+                if result:
+                    successful_uploads.append(key)
+                    print(f"✅ Successfully uploaded variable: {key}")
+                else:
+                    failed_uploads.append(key)
+                    print(f"❌ Failed to upload variable: {key}")
             except Exception as e:
-                print(f"Error uploading variable {key}: {e}")
-                return {}
+                failed_uploads.append(key)
+                print(f"❌ Error uploading variable {key}: {e}")
+
+        # Summary
+        if successful_uploads:
+            print(
+                f"\n✅ Successfully uploaded {len(successful_uploads)} variables: {', '.join(successful_uploads)}"
+            )
+
+        if failed_uploads:
+            print(
+                f"\n❌ Failed to upload {len(failed_uploads)} variables: {', '.join(failed_uploads)}"
+            )
+            print(
+                "⚠️  Some variables failed to upload. Please check the logs above for details."
+            )
+        else:
+            print(
+                f"\n🎉 All {len(successful_uploads)} variables uploaded successfully!"
+            )
+
+        return {"successful": successful_uploads, "failed": failed_uploads}
