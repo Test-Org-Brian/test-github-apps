@@ -4,10 +4,8 @@ GitHub App Creation Automation Tool
 """
 
 import argparse
-import os
 
 from github_app_creator import GitHubAppCreator
-from terraform_cloud_client import TerraformCloudClient
 
 
 def main():
@@ -20,15 +18,15 @@ def main():
 
     args = parser.parse_args()
 
-    # Get Terraform Cloud credentials from environment
-    tfc_token = os.getenv("TFC_TOKEN")
-    tfc_workspace_id = os.getenv("TFC_WORKSPACE_ID")
-    tfc_client = TerraformCloudClient(tfc_token, tfc_workspace_id)
+    # # Get Terraform Cloud credentials from environment
+    # tfc_token = os.getenv("TFC_TOKEN")
+    # tfc_workspace_id = os.getenv("TFC_WORKSPACE_ID")
+    # tfc_client = TerraformCloudClient(tfc_token, tfc_workspace_id)
 
-    if not all([tfc_token, tfc_workspace_id]):
-        raise ValueError(
-            "TFC_TOKEN and TFC_WORKSPACE_ID environment variables are required"
-        )
+    # if not all([tfc_token, tfc_workspace_id]):
+    #     raise ValueError(
+    #         "TFC_TOKEN and TFC_WORKSPACE_ID environment variables are required"
+    #     )
 
     creator = GitHubAppCreator(args.enterprise, args.org, args.token)
     app_data = creator.complete_app_creation(args.manifest)
@@ -41,13 +39,20 @@ def main():
         print("App installation failed. Exiting.")
         return
 
-    # Upload to Terraform Cloud using a single dictionary
-    upload_data = {
-        **app_data,
-        "installation_id": str(installation_data["id"]),
-        "tfc_client": tfc_client,
-    }
-    creator.upload_to_terraform_cloud(**upload_data)
+    print(
+        f"GitHub App '{app_data['name']}' created and installed successfully."
+        f"\nApplication Slug: {app_data['slug']}"
+        f"\nApplication ID: {app_data['id']}"
+        f"\nInstallation ID: {installation_data['id']}"
+    )
+
+    # # Upload to Terraform Cloud using a single dictionary
+    # upload_data = {
+    #     **app_data,
+    #     "installation_id": str(installation_data["id"]),
+    #     "tfc_client": tfc_client,
+    # }
+    # creator.upload_to_terraform_cloud(**upload_data)
 
 
 if __name__ == "__main__":
