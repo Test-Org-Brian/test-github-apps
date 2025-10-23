@@ -41,23 +41,51 @@
           });
         }
 
+        // Check if issue already exists
         issueOps
-          .createIssue({
-            title: manifestName,
-            body: issueOps.createIssueBody(code, manifestName),
+          .listIssues({
+            state: 'all',
             labels: ['github-app-automation'],
           })
+          .then((existingIssues) => {
+            const existingIssue = existingIssues.find(
+              (issue) => issue.title === manifestName
+            );
+
+            if (existingIssue) {
+              // Issue already exists, show status
+              document.getElementById('status').innerHTML = `
+                <div class="text-yellow-600 mb-4">⚠️</div>
+                <p class="text-yellow-600 font-medium">Automation for "${manifestName}" already exists!</p>
+                <div class="mt-4 text-sm text-gray-600">
+                  <p class="mt-2"><a href="${existingIssue.html_url}" target="_blank" class="text-blue-500 hover:underline">View Existing Issue on GitHub</a></p>
+                </div>
+                <button onclick="window.location.href='./'" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Back to Dashboard
+                </button>
+              `;
+            } else {
+              // Create new issue
+              return issueOps.createIssue({
+                title: manifestName,
+                body: issueOps.createIssueBody(code, manifestName),
+                labels: ['github-app-automation'],
+              });
+            }
+          })
           .then((issue) => {
-            document.getElementById('status').innerHTML = `
-                  <div class="text-green-600 mb-4">✅</div>
-                  <p class="text-green-600 font-medium">Successfully started installation automation for "${manifestName}"!</p>
-                  <div class="mt-4 text-sm text-gray-600">
-                    <p class="mt-2"><a href="${issue.html_url}" target="_blank" class="text-blue-500 hover:underline">View Issue on GitHub</a></p>
-                  </div>
-                  <button onclick="window.location.href='./'" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                      Back to Dashboard
-                  </button>
-                `;
+            if (issue) {
+              document.getElementById('status').innerHTML = `
+                    <div class="text-green-600 mb-4">✅</div>
+                    <p class="text-green-600 font-medium">Successfully started installation automation for "${manifestName}"!</p>
+                    <div class="mt-4 text-sm text-gray-600">
+                      <p class="mt-2"><a href="${issue.html_url}" target="_blank" class="text-blue-500 hover:underline">View Issue on GitHub</a></p>
+                    </div>
+                    <button onclick="window.location.href='./'" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                        Back to Dashboard
+                    </button>
+                  `;
+            }
           })
           .catch((error) => {
             console.error('Failed to create app:', error);
