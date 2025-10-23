@@ -15,6 +15,9 @@ def main():
     parser.add_argument("--enterprise", required=True, help="GitHub Enterprise name")
     parser.add_argument("--org", required=True, help="GitHub Organization name")
     parser.add_argument("--token", required=True, help="GitHub token")
+    parser.add_argument(
+        "--code", required=True, help="GitHub App manifest code from redirect"
+    )
 
     args = parser.parse_args()
 
@@ -29,7 +32,7 @@ def main():
     #     )
 
     creator = GitHubAppCreator(args.enterprise, args.org, args.token)
-    app_data = creator.complete_app_creation(args.manifest)
+    app_data = creator.complete_app_creation(args.code)
     if not app_data:
         print("App creation failed. Exiting.")
         return

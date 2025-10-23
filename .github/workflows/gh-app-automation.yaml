@@ -4,6 +4,10 @@ on:
   issues:
     types: [opened]
 
+permissions:
+  issues: write
+  contents: read
+
 jobs:
   run-automation:
     runs-on: ubuntu-latest
@@ -43,7 +47,7 @@ jobs:
         #   TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
         #   TFC_WORKSPACE_ID: ${{ secrets.TFC_WORKSPACE_ID }}
         run: |
-          python src/main.py \
+          python automation/main.py \
             --enterprise "dte-energy-company" \
             --org "${{ github.repository_owner }}" \
             --token "${{ secrets.GITHUB_TOKEN }}" \

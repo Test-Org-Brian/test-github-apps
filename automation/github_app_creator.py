@@ -6,7 +6,6 @@ GitHub App Creation Automation Tool
 from typing import Any, Dict
 
 import requests
-
 from utils import get_app_name
 
 
