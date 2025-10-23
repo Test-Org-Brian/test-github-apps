@@ -15,48 +15,48 @@ jobs:
       - name: Notify start of automation
         run: echo "Starting GitHub Apps automation for issue ${{ github.event.issue.number }}"
 
-      # - name: Set up Python
-      #   uses: actions/setup-python@v4
-      #   with:
-      #     python-version: '3.12'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
 
-      # - name: Install dependencies
-      #   run: |
-      #     python -m pip install --upgrade pip
-      #     pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      # - name: Parse issue body for code and manifest name
-      #   id: parse
-      #   run: |
-      #     # Extract the JSON code block from the issue body
-      #     echo "$ISSUE_BODY" | awk '/```json/{flag=1;next}/```/{flag=0}flag' > codeblock.json
-      #     # Parse code and manifest_name from the code block
-      #     CODE=$(jq -r '.code // empty' codeblock.json)
-      #     MANIFEST_NAME=$(jq -r '.manifest_name // empty' codeblock.json)
-      #     echo "code=$CODE" >> $GITHUB_OUTPUT
-      #     echo "manifest_name=$MANIFEST_NAME" >> $GITHUB_OUTPUT
-      #   env:
-      #     ISSUE_BODY: ${{ github.event.issue.body }}
+      - name: Parse issue body for code and manifest name
+        id: parse
+        run: |
+          # Extract the JSON code block from the issue body
+          echo "$ISSUE_BODY" | awk '/```json/{flag=1;next}/```/{flag=0}flag' > codeblock.json
+          # Parse code and manifest_name from the code block
+          CODE=$(jq -r '.code // empty' codeblock.json)
+          MANIFEST_NAME=$(jq -r '.manifest_name // empty' codeblock.json)
+          echo "code=$CODE" >> $GITHUB_OUTPUT
+          echo "manifest_name=$MANIFEST_NAME" >> $GITHUB_OUTPUT
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
 
-      # - name: Run GitHub App Installation Script
-      #   env:
-      #     TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
-      #     TFC_WORKSPACE_ID: ${{ secrets.TFC_WORKSPACE_ID }}
-      #   run: |
-      #     python src/main.py \
-      #       --enterprise "dte-energy-company" \
-      #       --org "${{ github.repository_owner }}" \
-      #       --token "${{ secrets.GITHUB_TOKEN }}" \
-      #       --code "${{ steps.parse.outputs.code }}" \
+      - name: Run GitHub App Installation Script
+        env:
+          TFC_TOKEN: ${{ secrets.TFC_TOKEN }}
+          TFC_WORKSPACE_ID: ${{ secrets.TFC_WORKSPACE_ID }}
+        run: |
+          python src/main.py \
+            --enterprise "dte-energy-company" \
+            --org "${{ github.repository_owner }}" \
+            --token "${{ secrets.GITHUB_TOKEN }}" \
+            --code "${{ steps.parse.outputs.code }}" \
 
-      # - name: Close GitHub Issue upon App Installation
-      #   uses: actions/github-script@v7
-      #   with:
-      #     github-token: ${{ secrets.GITHUB_TOKEN }}
-      #     script: |
-      #       github.rest.issues.update({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         issue_number: context.issue.number,
-      #         state: "closed"
-      #       })
+      - name: Close GitHub Issue upon App Installation
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: "closed"
+            })

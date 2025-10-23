@@ -47,6 +47,9 @@ jobs:
               -e "s|__GITHUB_TOKEN__|${{ secrets.GITHUB_TOKEN }}|g" \
               docs/config.template.js > docs/config.js
 
+      - name: Generate manifests.json
+        run: ./scripts/manifest-sync.sh
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
