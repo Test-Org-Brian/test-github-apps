@@ -15,7 +15,6 @@ class GitHubIssueOps {
    createIssueBody(code, manifestName) {
     return (
       `### GitHub App Creation Automation\n` +
-      `**Code:**\n\n` +
       '```json\n' +
       JSON.stringify({ code, manifest_name: manifestName }, null, 2) +
       '\n```'
